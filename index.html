@@ -4,133 +4,302 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Akin International University College</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDKs -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <!-- PDFKit for Certificates -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/dist/pdfkit.standalone.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/blob-stream@0.1.4/browser.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; }
+    .hidden { display: none !important; }
+    .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .chat-container { max-width: 800px; margin: 2rem auto; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- === PUBLIC VIEW === -->
+  <div id="public-view" class="min-h-screen flex flex-col">
+    <header class="bg-[#0A2E5C] text-white shadow-md">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <div class="bg-[#D4AF37] w-10 h-10 rounded-full flex items-center justify-center text-[#0A2E5C] font-bold text-lg">A</div>
+          <div>
+            <h1 class="text-xl font-bold">Akin International University College</h1>
+            <p class="text-sm text-blue-200">Knowledge Without Borders</p>
+          </div>
+        </div>
+        <button id="login-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">
+          Sign in with Google
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-12 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-[#0A2E5C] mb-6">Welcome to Akin International University College</h2>
+      <p class="text-lg text-gray-700 max-w-2xl mx-auto mb-8">
+        A new era of global education, innovation, and academic excellence.
+      </p>
+
+      <!-- Free Courses -->
+      <div class="bg-white p-6 rounded-xl shadow-lg max-w-4xl mx-auto mb-8">
+        <h3 class="text-2xl font-bold text-[#0A2E5C] mb-4">📚 Free Online Courses</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+          <a href="https://grow.google.com/certificates/" target="_blank" class="p-4 bg-red-50 rounded-lg hover:bg-red-100 transition">
+            <div class="text-red-600 text-2xl mb-2"><i class="fab fa-google"></i></div>
+            <h4 class="font-bold">Google Career Certificates</h4>
+          </a>
+          <a href="https://www.coursera.org/courses?free=true" target="_blank" class="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+            <div class="text-blue-600 text-2xl mb-2"><i class="fas fa-graduation-cap"></i></div>
+            <h4 class="font-bold">Coursera Free Courses</h4>
+          </a>
+        </div>
+      </div>
+
+      <!-- Live Tutorials -->
+      <div class="bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto">
+        <h3 class="text-2xl font-bold text-[#0A2E5C] mb-4">📹 Live Tutorials</h3>
+        <p class="mb-4">Join weekly live sessions with professors on YouTube.</p>
+        <a href="https://youtube.com" target="_blank" class="inline-block bg-red-600 text-white px-6 py-2 rounded-lg">
+          Watch Live
+        </a>
+      </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 text-center text-sm">
+      <p>&copy; <span id="year"></span> Akin International University College</p>
+    </footer>
+  </div>
+
+  <!-- === STUDENT PORTAL === -->
+  <div id="student-portal" class="hidden min-h-screen flex flex-col">
+    <header class="bg-blue-700 text-white shadow-md">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <h1 class="text-xl font-bold">👨‍🎓 Student Portal</h1>
+        <div class="flex items-center space-x-4">
+          <span id="student-name" class="font-medium"></span>
+          <button onclick="openDrive()" class="bg-yellow-500 text-[#0A2E5C] px-3 py-1 rounded text-sm">Drive</button>
+          <button onclick="logout()" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">Sign Out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+      <div class="portal-grid">
+        <!-- Course Registration -->
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-xl font-bold text-blue-700 mb-3">📝 Register for Courses</h2>
+          <form id="course-form" class="space-y-3">
+            <select id="course-select" class="w-full p-2 border rounded">
+              <option value="">Select a course</option>
+              <option value="CS101">CS101: Intro to Computer Science</option>
+              <option value="MATH201">MATH201: Calculus I</option>
+              <option value="ENG101">ENG101: Academic Writing</option>
+            </select>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Enroll</button>
+          </form>
+          <p id="enroll-message" class="mt-2 text-green-600 text-sm hidden">Enrolled successfully!</p>
+        </div>
+
+        <!-- Certificates -->
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-xl font-bold text-blue-700 mb-3">🎓 Generate Certificate</h2>
+          <p class="text-gray-700 mb-3">Earn a certificate for CS101.</p>
+          <button onclick="generateCertificate()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+            Download Certificate (PDF)
+          </button>
+        </div>
+
+        <!-- Career -->
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-xl font-bold text-blue-700 mb-3">💼 Career Resources</h2>
+          <a href="https://www.linkedin.com/jobs/" target="_blank" class="text-blue-600 hover:underline">Browse Jobs</a>
+        </div>
+
+        <!-- Live Chat -->
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-xl font-bold text-blue-700 mb-3">💬 Ask a Professor</h2>
+          <div id="disqus_thread" class="text-sm"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 text-center text-sm">
+      <p>&copy; <span id="year2"></span> Akin International University College</p>
+    </footer>
+  </div>
+
+  <!-- === PROFESSOR & ADMIN PORTALS (SIMPLIFIED) === -->
+  <div id="professor-portal" class="hidden min-h-screen flex flex-col">
+    <header class="bg-green-700 text-white shadow-md">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <h1 class="text-xl font-bold">👩‍🏫 Professor Portal</h1>
+        <div class="flex items-center space-x-4">
+          <span id="professor-name" class="font-medium"></span>
+          <button onclick="openDrive()" class="bg-yellow-500 text-[#0A2E5C] px-3 py-1 rounded text-sm">Drive</button>
+          <button onclick="logout()" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">Sign Out</button>
+        </div>
+      </div>
+    </header>
+    <main class="flex-grow container mx-auto px-4 py-8 text-center">
+      <h2 class="text-2xl font-bold text-green-700 mb-6">Welcome, Professor!</h2>
+      <p>Upload materials, grade assignments, and manage your courses.</p>
+    </main>
+    <footer class="bg-gray-800 text-white py-4 text-center text-sm">
+      <p>&copy; <span id="year3"></span> Akin International University College</p>
+    </footer>
+  </div>
+
+  <div id="admin-portal" class="hidden min-h-screen flex flex-col">
+    <header class="bg-purple-700 text-white shadow-md">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <h1 class="text-xl font-bold">👨‍💼 Admin Portal</h1>
+        <div class="flex items-center space-x-4">
+          <span id="admin-name" class="font-medium"></span>
+          <button onclick="openDrive()" class="bg-yellow-500 text-[#0A2E5C] px-3 py-1 rounded text-sm">Drive</button>
+          <button onclick="logout()" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">Sign Out</button>
+        </div>
+      </div>
+    </header>
+    <main class="flex-grow container mx-auto px-4 py-8 text-center">
+      <h2 class="text-2xl font-bold text-purple-700 mb-6">Welcome, Admin!</h2>
+      <p>Manage users, announcements, and system settings.</p>
+    </main>
+    <footer class="bg-gray-800 text-white py-4 text-center text-sm">
+      <p>&copy; <span id="year4"></span> Akin International University College</p>
+    </footer>
+  </div>
+
+  <!-- Firebase & App Logic -->
   <script type="module">
+    // 🔥 YOUR REAL FIREBASE CONFIG (from your project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAd6HlRq2CebiHIDQsE1rm0GG_5k8BJBaw",
+      authDomain: "akin-university-portal.firebaseapp.com",
+      projectId: "akin-university-portal",
+      storageBucket: "akin-university-portal.firebasestorage.app",
+      messagingSenderId: "465394069427",
+      appId: "1:465394069427:web:a517480d8a0da0125565c6",
+      measurementId: "G-R740KKNNLH"
+    };
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    // 🔑 REPLACE WITH YOUR FIREBASE CONFIG (get from Firebase Console)
-    const firebaseConfig = {
-  apiKey: "AIzaSyAd6HlRq2CebiHIDQsE1rm0GG_5k8BJBaw",
-  authDomain: "akin-university-portal.firebaseapp.com",
-  projectId: "akin-university-portal",
-  storageBucket: "akin-university-portal.firebasestorage.app",
-  messagingSenderId: "465394069427",
-  appId: "1:465394069427:web:a517480d8a0da0125565c6",
-  measurementId: "G-R740KKNNLH"
-};
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // DOM Elements
-    const loginBtn = document.getElementById('login-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const driveBtn = document.getElementById('drive-btn');
-    const userGreeting = document.getElementById('user-greeting');
-    const publicSection = document.getElementById('public-section');
+    // DOM
+    const views = {
+      public: document.getElementById('public-view'),
+      student: document.getElementById('student-portal'),
+      professor: document.getElementById('professor-portal'),
+      admin: document.getElementById('admin-portal')
+    };
 
-    // Auth state listener
+    // Set years
+    ['year', 'year2', 'year3', 'year4'].forEach(id => {
+      document.getElementById(id).textContent = new Date().getFullYear();
+    });
+
+    // Show view
+    function showView(name) {
+      Object.keys(views).forEach(key => {
+        views[key].classList.toggle('hidden', key !== name);
+      });
+    }
+
+    // Role routing
+    function routeUser(user) {
+      const email = user.email.toLowerCase();
+      if (email.includes('admin')) {
+        document.getElementById('admin-name').textContent = user.displayName;
+        showView('admin');
+      } else if (email.includes('prof')) {
+        document.getElementById('professor-name').textContent = user.displayName;
+        showView('professor');
+      } else {
+        document.getElementById('student-name').textContent = user.displayName;
+        showView('student');
+        // Load Disqus for student
+        if (window.DISQUS) {
+          DISQUS.reset({ reload: true });
+        } else {
+          loadDisqus();
+        }
+      }
+    }
+
+    // Disqus for live chat
+    function loadDisqus() {
+      window.disqus_config = function () {
+        this.page.url = "https://akininternationaluniversitycol.github.io";
+        this.page.identifier = "student-chat";
+      };
+      const d = document, s = d.createElement('script');
+      s.src = 'https://akinuniversity.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+
+    // Course enrollment
+    document.getElementById('course-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('enroll-message');
+      msg.classList.remove('hidden');
+      setTimeout(() => msg.classList.add('hidden'), 3000);
+    });
+
+    // Generate PDF Certificate
+    window.generateCertificate = () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const doc = new PDFDocument({ margin: 50 });
+      const stream = doc.pipe(blobStream());
+
+      doc.fontSize(30).fillColor('#0A2E5C').text('Certificate of Completion', { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(18).fillColor('black').text(`This certifies that`, { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(24).fillColor('#D4AF37').text(user.displayName, { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(16).text('has successfully completed', { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(20).text('CS101: Introduction to Computer Science', { align: 'center' });
+      doc.moveDown(2);
+      doc.fontSize(12).text(`Issued on: ${new Date().toLocaleDateString()}`, { align: 'center' });
+
+      doc.end();
+      stream.on('finish', () => {
+        const url = stream.toBlobURL('application/pdf');
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `AkinU_Certificate_${user.uid}.pdf`;
+        link.click();
+      });
+    };
+
+    // Actions
+    window.openDrive = () => window.open('https://drive.google.com/drive/my-drive', '_blank');
+    window.logout = () => {
+      signOut(auth);
+      showView('public');
+    };
+
+    // Auth state
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        userGreeting.textContent = `Hello, ${user.displayName}`;
-        loginBtn.classList.add('hidden');
-        logoutBtn.classList.remove('hidden');
-        driveBtn.classList.remove('hidden');
-        publicSection.classList.add('hidden');
+        routeUser(user);
       } else {
-        loginBtn.classList.remove('hidden');
-        logoutBtn.classList.add('hidden');
-        driveBtn.classList.add('hidden');
-        publicSection.classList.remove('hidden');
+        showView('public');
       }
     });
 
-    // Login
-    loginBtn?.addEventListener('click', async () => {
-      try {
-        await signInWithPopup(auth, provider);
-      } catch (error) {
-        alert("Login failed: " + error.message);
-      }
+    // Login button
+    document.getElementById('login-btn')?.addEventListener('click', () => {
+      signInWithPopup(auth, provider);
     });
-
-    // Logout
-    logoutBtn?.addEventListener('click', () => signOut(auth));
-
-    // Open Google Drive
-    driveBtn?.addEventListener('click', () => {
-      window.open('https://drive.google.com/drive/my-drive', '_blank');
-    });
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-    body { font-family: 'Poppins', sans-serif; }
-    .hidden { display: none !important; }
-  </style>
-</head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-  <!-- Header -->
-  <header class="bg-[#0A2E5C] text-white shadow-md">
-    <div class="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-      <!-- Logo & Title -->
-      <div class="flex items-center space-x-3">
-        <!-- Placeholder Logo (replace with your real logo URL later) -->
-        <div class="bg-[#D4AF37] w-12 h-12 rounded-full flex items-center justify-center text-[#0A2E5C] font-bold text-xl">A</div>
-        <div>
-          <h1 class="text-xl font-bold">Akin International University College</h1>
-          <p class="text-sm text-blue-200">Knowledge Without Borders</p>
-        </div>
-      </div>
-
-      <!-- Auth Buttons -->
-      <div class="flex items-center space-x-3">
-        <button id="login-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium hidden">
-          Sign in with Google
-        </button>
-        <span id="user-greeting" class="text-white font-medium hidden"></span>
-        <button id="drive-btn" class="bg-[#D4AF37] hover:bg-yellow-700 text-[#0A2E5C] px-4 py-2 rounded-lg font-medium hidden">
-          Google Drive
-        </button>
-        <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded hidden">
-          Sign Out
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero + Public Content -->
-  <main class="flex-grow container mx-auto px-4 py-12">
-    <div class="text-center max-w-3xl mx-auto">
-      <h2 class="text-3xl md:text-4xl font-bold text-[#0A2E5C] mb-6">
-        Welcome to Akin International University College
-      </h2>
-      <p class="text-lg text-gray-700 mb-8">
-        A new era of global education, innovation, and academic excellence.  
-        Explore our programs, connect with faculty, and manage your journey — all in one place.
-      </p>
-
-      <!-- Public Section (visible only when not logged in) -->
-      <div id="public-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-        <h3 class="text-xl font-semibold text-[#0A2E5C] mb-3">Prospective Students</h3>
-        <p class="mb-4">Browse courses, admission requirements, and virtual campus tours.</p>
-        <a href="#" class="inline-block bg-[#0A2E5C] hover:bg-blue-800 text-white px-6 py-2 rounded-lg">
-          Explore Programs
-        </a>
-      </div>
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="bg-gray-800 text-white py-5 text-center text-sm">
-    <p>&copy; <span id="year"></span> Akin International University College. All rights reserved.</p>
-  </footer>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
