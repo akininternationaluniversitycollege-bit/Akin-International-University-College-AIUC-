@@ -8,13 +8,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/dist/pdfkit.standalone.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/blob-stream@0.1.4/browser.js"></script>
-  <!-- Google AdSense (Replace with your ID later) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456" crossorigin="anonymous"></script>
+  <!-- 🔥 YOUR GOOGLE ADSENSE -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1627425739277170" crossorigin="anonymous"></script>
   <style>
     body { font-family: 'Segoe UI', system-ui, sans-serif; }
     .hidden { display: none !important; }
     .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-    iframe { border: none; width: 100%; min-height: 300px; }
     .social-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; color: white; text-decoration: none; margin: 4px; font-size: 14px; }
   </style>
 </head>
@@ -70,7 +69,7 @@
         </div>
       </section>
 
-      <!-- Smythe University College Courses -->
+      <!-- Smythe University Courses -->
       <section class="mb-10">
         <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">🎓 Smythe University College - Available Courses</h2>
         <div class="bg-white p-4 rounded shadow">
@@ -107,12 +106,12 @@
         </div>
       </section>
 
-      <!-- Google AdSense Placeholder -->
+      <!-- 🔥 YOUR GOOGLE ADSENSE AD UNIT -->
       <section class="mb-10">
         <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">📢 Sponsored Opportunities</h2>
         <ins class="adsbygoogle"
              style="display:block"
-             data-ad-client="ca-pub-1234567890123456"
+             data-ad-client="ca-pub-1627425739277170"
              data-ad-slot="1234567890"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
@@ -182,7 +181,7 @@
     </footer>
   </div>
 
-  <!-- === PROFESSOR & ADMIN (Kept Simple) === -->
+  <!-- === PROFESSOR & ADMIN === -->
   <div id="professor-portal" class="hidden min-h-screen flex flex-col">
     <header class="bg-green-700 text-white shadow-md">
       <div class="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -223,9 +222,8 @@
     </footer>
   </div>
 
-  <!-- Firebase & Logic -->
+  <!-- 🔥 YOUR FIREBASE CONFIG + LOGIC -->
   <script type="module">
-    // 🔥 YOUR REAL FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyAd6HlRq2CebiHIDQsE1rm0GG_5k8BJBaw",
       authDomain: "akin-university-portal.firebaseapp.com",
@@ -245,12 +243,10 @@
     const storage = getStorage(app);
     const provider = new GoogleAuthProvider();
 
-    // Set years
     ['year', 'year2', 'year3', 'year4'].forEach(id => {
       document.getElementById(id).textContent = new Date().getFullYear();
     });
 
-    // Show view
     function showView(name) {
       const views = ['public-view', 'student-portal', 'professor-portal', 'admin-portal'];
       views.forEach(id => {
@@ -258,7 +254,6 @@
       });
     }
 
-    // Profile picture upload
     document.getElementById('pic-upload')?.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -270,7 +265,6 @@
       localStorage.setItem('profilePic', url);
     });
 
-    // Password & PIN
     window.changePassword = () => {
       const user = auth.currentUser;
       if (user && user.email) {
@@ -286,7 +280,6 @@
       }
     };
 
-    // Certificate
     window.generateCertificate = () => {
       const user = auth.currentUser;
       if (!user) return;
@@ -313,14 +306,12 @@
       });
     };
 
-    // Actions
     window.openDrive = () => window.open('https://drive.google.com/drive/my-drive', '_blank');
     window.logout = () => {
       signOut(auth);
       showView('public');
     };
 
-    // Auth state
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const email = user.email.toLowerCase();
