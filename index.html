@@ -1,160 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script type="module">
-  // =============== 🔥 RESTORED FIREWALL (Firebase Auth + Role Control) ===============
-  const firebaseConfig = {
-    apiKey: "AIzaSyAd6HlRq2CebiHIDQsE1rm0GG_5k8BJBaw",
-      authDomain: "akin-university-portal.firebaseapp.com",
-      projectId: "akin-university-portal",
-      storageBucket: "akin-university-portal.firebasestorage.app",
-      messagingSenderId: "465394069427",
-      appId: "1:465394069427:web:a517480d8a0da0125565c6",
-      measurementId: "G-R740KKNNLH"
-    };
-
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const storage = getStorage(app);
-  const provider = new GoogleAuthProvider();
-
-  // Update UI with user data
-  function updateUI(user) {
-    if (user) {
-      const email = user.email.toLowerCase();
-      document.getElementById('sidebar-name').textContent = user.displayName;
-      document.getElementById('sidebar-email').textContent = user.email;
-      document.getElementById('user-display-name').textContent = user.displayName;
-
-      // Load profile pic
-      const savedPic = localStorage.getItem('profilePic');
-      if (savedPic) {
-        document.getElementById('profile-pic').src = savedPic;
-        document.getElementById('sidebar-profile-pic').src = savedPic;
-        document.getElementById('student-pic').src = savedPic;
-      }
-
-      // Role-based routing
-      if (email.includes('admin')) {
-        showView('admin');
-        document.getElementById('role-selector').value = 'admin';
-      } else if (email.includes('prof')) {
-        showView('professor');
-        document.getElementById('role-selector').value = 'professor';
-      } else {
-        showView('student');
-        document.getElementById('role-selector').value = 'student';
-      }
-
-      // Show user menu, hide login
-      document.getElementById('auth-menu-item').style.display = 'none';
-      document.getElementById('user-menu').classList.remove('hidden');
-    } else {
-      // Guest mode
-      showView('dashboard');
-      document.getElementById('auth-menu-item').style.display = 'flex';
-      document.getElementById('user-menu').classList.add('hidden');
-    }
-  }
-
-  // Navigation
-  window.showView = (view) => {
-    ['dashboard', 'courses', 'scholarships', 'opportunities', 'marketplace', 'profile', 'student', 'professor', 'admin'].forEach(v => {
-      const el = document.getElementById(`view-${v}`);
-      if (el) el.classList.toggle('hidden', v !== view);
-    });
-  };
-
-  // Auth Listeners
-  document.getElementById('auth-menu-item')?.addEventListener('click', () => {
-    signInWithPopup(auth, provider).catch(console.error);
-  });
-
-  window.logout = () => {
-    signOut(auth);
-  };
-
-  // Profile Upload
-  document.getElementById('pic-upload')?.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file || !auth.currentUser) return;
-    try {
-      const storageRef = ref(storage, `profile_pics/${auth.currentUser.uid}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      localStorage.setItem('profilePic', url);
-      updateUI(auth.currentUser);
-    } catch (err) {
-      alert('Failed to upload photo');
-    }
-  });
-
-  // Password & PIN
-  window.changePassword = () => {
-    const user = auth.currentUser;
-    if (user?.email) {
-      sendPasswordResetEmail(auth, user.email).then(() => alert("Password reset email sent!"));
-    }
-  };
-  window.changePIN = () => {
-    const pin = prompt("Enter new 4-digit PIN:");
-    if (pin && /^\d{4}$/.test(pin)) {
-      localStorage.setItem('userPIN', pin);
-      alert("PIN updated!");
-    }
-  };
-
-  // Certificate (same as before)
-  window.generateCertificate = () => {
-    const user = auth.currentUser;
-    if (!user) return;
-    const doc = new PDFDocument({ margin: 50 });
-    const stream = doc.pipe(blobStream());
-    doc.fontSize(30).fillColor('#0A2E5C').text('Certificate of Completion', { align: 'center' });
-    doc.moveDown();
-    doc.fontSize(24).fillColor('#D4AF37').text(user.displayName, { align: 'center' });
-    doc.moveDown();
-    doc.fontSize(12).text(`Issued on: ${new Date().toLocaleDateString()}`, { align: 'center' });
-    doc.end();
-    stream.on('finish', () => {
-      const url = stream.toBlobURL('application/pdf');
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `AkinU_Certificate_${user.uid}.pdf`;
-      link.click();
-    });
-  };
-
-  // Real-time auth state
-  onAuthStateChanged(auth, (user) => {
-    updateUI(user);
-  });
-
-  // Initialize
-  document.getElementById('year').textContent = new Date().getFullYear();
-  updateUI(null); // Start as guest
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Akin International University College – Free courses, scholarships, and income opportunities for Liberians. Enroll today!">
+  <meta name="description" content="Akin International University College – 100% free courses, scholarships, and income opportunities for Liberians. No payment required.">
   <title>Akin International University College</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+  
+  <!-- PDFKit -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/dist/pdfkit.standalone.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/blob-stream@0.1.4/browser.js"></script>
   
   <style>
     :root {
       --primary: #0A2E5C;
       --accent: #D4AF37;
-      --dark: #1e293b;
+      --mtn-orange: #F15A24;
     }
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
@@ -166,7 +31,6 @@
       color: #e2e8f0 !important;
     }
     .dark-mode .bg-white { background-color: #1e293b !important; }
-    .dark-mode .text-gray-700 { color: #cbd5e1 !important; }
     .sidebar {
       width: 260px;
       height: 100vh;
@@ -180,21 +44,9 @@
       overflow-y: auto;
     }
     .sidebar.open { left: 0; }
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 40;
-    }
+    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 40; }
     .overlay.open { display: block; }
-    .main-content {
-      margin-left: 0;
-      transition: margin-left 0.3s;
-    }
+    .main-content { margin-left: 0; transition: margin-left 0.3s; }
     .main-content.sidebar-open { margin-left: 260px; }
     .menu-item {
       display: flex;
@@ -207,7 +59,6 @@
       background: rgba(255,255,255,0.1);
       border-left: 4px solid var(--accent);
     }
-    .menu-item i { margin-right: 12px; font-size: 18px; }
     .balance-card {
       background: linear-gradient(135deg, #0A2E5C, #1e3a8a);
       color: white;
@@ -215,29 +66,20 @@
       padding: 16px;
       margin-bottom: 20px;
     }
-    .course-card, .scholarship-card, .opportunity-card {
+    .free-badge {
+      background: #10b981;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 8px;
       border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
+      font-weight: bold;
     }
-    .course-card:hover { transform: translateY(-4px); }
-    .product-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .profile-section {
-      text-align: center;
-      padding: 20px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .profile-pic {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 3px solid var(--accent);
-      margin-bottom: 12px;
+    .mtn-badge {
+      background: var(--mtn-orange);
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -247,13 +89,12 @@
     <i class="fas fa-bars"></i>
   </button>
 
-  <!-- Overlay -->
   <div id="overlay" class="overlay"></div>
 
   <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
-    <div class="profile-section">
-      <img id="sidebar-profile-pic" src="https://via.placeholder.com/80" class="profile-pic">
+    <div class="profile-section p-4 text-center border-b border-blue-800">
+      <img id="sidebar-profile-pic" src="https://via.placeholder.com/80" class="w-16 h-16 rounded-full mx-auto mb-2 border-2 border-[#D4AF37]">
       <h3 id="sidebar-name" class="font-bold">Guest</h3>
       <p id="sidebar-email" class="text-blue-200 text-sm">Not signed in</p>
     </div>
@@ -262,16 +103,13 @@
       <i class="ri-home-4-line"></i> Dashboard
     </div>
     <div class="menu-item" data-view="courses">
-      <i class="ri-book-open-line"></i> Courses
+      <i class="ri-book-open-line"></i> Free Courses
     </div>
     <div class="menu-item" data-view="scholarships">
       <i class="ri-award-line"></i> Scholarships
     </div>
     <div class="menu-item" data-view="opportunities">
-      <i class="ri-money-dollar-circle-line"></i> Money Opportunities
-    </div>
-    <div class="menu-item" data-view="marketplace">
-      <i class="ri-shopping-bag-line"></i> Marketplace
+      <i class="ri-money-dollar-circle-line"></i> Earn in Liberia
     </div>
     <div class="menu-item" data-view="profile">
       <i class="ri-user-3-line"></i> My Profile
@@ -287,113 +125,91 @@
     <div id="view-dashboard" class="view">
       <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">🎓 Welcome to Akin University</h1>
       
-      <!-- Balance Card -->
+      <!-- FREE Banner -->
+      <div class="bg-green-100 border-l-4 border-green-500 p-4 mb-6 rounded">
+        <p class="text-green-800 font-bold">✅ ALL COURSES & CERTIFICATES ARE 100% FREE — NO PAYMENT REQUIRED</p>
+      </div>
+
+      <!-- Balance Card (for future MTN) -->
       <div class="balance-card">
         <div class="flex justify-between items-center">
           <div>
-            <p class="text-blue-200">Account Balance</p>
-            <p class="text-2xl font-bold">$<span id="balance-amount">0.00</span></p>
+            <p class="text-blue-200">MTN Mobile Money (Coming Soon)</p>
+            <p class="text-sm">Balance: <span class="font-bold">Not Linked</span></p>
           </div>
-          <button class="bg-[#D4AF37] text-[#0A2E5C] px-4 py-2 rounded-lg font-bold">Add Funds</button>
+          <span class="mtn-badge">MTN</span>
         </div>
         <div class="mt-4 text-sm">
-          <p>Status: <span id="enrollment-status" class="font-medium">Not Enrolled</span></p>
-          <p>Next Payment Due: <span id="due-date">-</span></p>
+          <p>Status: <span class="font-medium text-green-300">✅ Free Enrollment Active</span></p>
+          <p>Next Step: Enroll in a course below!</p>
         </div>
       </div>
 
-      <!-- Quick Stats -->
+      <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div class="bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-[#0A2E5C]">My Courses</h3>
-          <p id="course-count" class="text-2xl mt-2">0</p>
+          <h3 class="font-bold text-[#0A2E5C]">Free Courses</h3>
+          <p class="text-2xl mt-2">3</p>
         </div>
         <div class="bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-[#0A2E5C]">Scholarships Applied</h3>
-          <p class="text-2xl mt-2">0</p>
+          <h3 class="font-bold text-[#0A2E5C]">Scholarships</h3>
+          <p class="text-2xl mt-2">4+</p>
         </div>
         <div class="bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-[#0A2E5C]">Earnings This Month</h3>
-          <p class="text-2xl mt-2">$0</p>
+          <h3 class="font-bold text-[#0A2E5C]">Liberia Opportunities</h3>
+          <p class="text-2xl mt-2">4</p>
         </div>
-      </div>
-
-      <!-- Recent Activity -->
-      <div class="bg-white p-4 rounded-xl shadow">
-        <h2 class="text-xl font-bold text-[#0A2E5C] mb-4">Recent Activity</h2>
-        <ul class="space-y-2 text-gray-600">
-          <li>• Welcome to Akin University! Start by enrolling in a course.</li>
-        </ul>
       </div>
     </div>
 
-    <!-- Courses -->
+    <!-- Courses (ALL FREE) -->
     <div id="view-courses" class="view hidden">
-      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">📚 Available Courses</h1>
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">📚 100% Free Courses</h1>
+      <p class="mb-4 text-green-700 font-medium">✅ No payment. No hidden fees. Certificates included.</p>
+      
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Course 1 -->
-        <div class="course-card bg-white">
-          <div class="p-4">
-            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Free</span>
-            <h3 class="font-bold text-lg mt-2">Web Development Fundamentals</h3>
-            <p class="text-gray-600 text-sm mt-2">Learn HTML, CSS, JavaScript, and build your first website.</p>
-            <div class="mt-4 flex justify-between items-center">
-              <span class="text-sm text-gray-500">8 weeks</span>
-              <button class="enroll-btn bg-[#0A2E5C] text-white px-3 py-1 rounded text-sm" data-course="web-dev">Enroll Now</button>
-            </div>
+        <!-- Web Dev -->
+        <div class="bg-white p-4 rounded-xl shadow">
+          <div class="flex justify-between items-start">
+            <h3 class="font-bold text-lg">Web Development</h3>
+            <span class="free-badge">FREE</span>
           </div>
+          <p class="text-gray-600 text-sm mt-2">HTML, CSS, JavaScript, React</p>
+          <button class="enroll-btn mt-3 w-full bg-[#0A2E5C] text-white py-2 rounded">Enroll Now</button>
         </div>
-        <!-- Course 2 -->
-        <div class="course-card bg-white">
-          <div class="p-4">
-            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Certified</span>
-            <h3 class="font-bold text-lg mt-2">Business Administration</h3>
-            <p class="text-gray-600 text-sm mt-2">Principles of management, marketing, and finance.</p>
-            <div class="mt-4 flex justify-between items-center">
-              <span class="text-sm text-gray-500">12 weeks</span>
-              <button class="enroll-btn bg-[#0A2E5C] text-white px-3 py-1 rounded text-sm" data-course="business">Enroll Now</button>
-            </div>
+        <!-- Business -->
+        <div class="bg-white p-4 rounded-xl shadow">
+          <div class="flex justify-between items-start">
+            <h3 class="font-bold text-lg">Business Admin</h3>
+            <span class="free-badge">FREE</span>
           </div>
+          <p class="text-gray-600 text-sm mt-2">Management, Marketing, Finance</p>
+          <button class="enroll-btn mt-3 w-full bg-[#0A2E5C] text-white py-2 rounded">Enroll Now</button>
         </div>
-        <!-- Course 3 -->
-        <div class="course-card bg-white">
-          <div class="p-4">
-            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">Advanced</span>
-            <h3 class="font-bold text-lg mt-2">AI & Machine Learning</h3>
-            <p class="text-gray-600 text-sm mt-2">Intro to Python, data science, and AI models.</p>
-            <div class="mt-4 flex justify-between items-center">
-              <span class="text-sm text-gray-500">10 weeks</span>
-              <button class="enroll-btn bg-[#0A2E5C] text-white px-3 py-1 rounded text-sm" data-course="ai">Enroll Now</button>
-            </div>
+        <!-- AI -->
+        <div class="bg-white p-4 rounded-xl shadow">
+          <div class="flex justify-between items-start">
+            <h3 class="font-bold text-lg">AI & Data Science</h3>
+            <span class="free-badge">FREE</span>
           </div>
+          <p class="text-gray-600 text-sm mt-2">Python, Machine Learning, Ethics</p>
+          <button class="enroll-btn mt-3 w-full bg-[#0A2E5C] text-white py-2 rounded">Enroll Now</button>
         </div>
       </div>
     </div>
 
     <!-- Scholarships -->
     <div id="view-scholarships" class="view hidden">
-      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">💰 Verified Scholarships</h1>
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">💰 Scholarships for Liberians</h1>
       <div class="space-y-4">
-        <!-- Liberia-Focused -->
-        <div class="scholarship-card bg-white p-4 rounded-xl shadow">
+        <div class="bg-white p-4 rounded-xl shadow">
           <h3 class="font-bold text-lg text-[#0A2E5C]">Liberia Education Trust Fund</h3>
-          <p class="text-gray-600 text-sm mt-1">For Liberian students pursuing higher education.</p>
+          <p class="text-gray-600 text-sm mt-1">For Liberian students. Fully funded.</p>
           <a href="https://www.moe.gov.lr/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Apply Now →</a>
         </div>
-        <!-- Global -->
-        <div class="scholarship-card bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-lg text-[#0A2E5C]">DAAD Scholarships (Germany)</h3>
-          <p class="text-gray-600 text-sm mt-1">Fully funded master's and PhD programs.</p>
-          <a href="https://www.daad.de/en/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Apply Now →</a>
-        </div>
-        <div class="scholarship-card bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-lg text-[#0A2E5C]">Chevening Scholarships (UK)</h3>
-          <p class="text-gray-600 text-sm mt-1">One-year master's in the UK for future leaders.</p>
-          <a href="https://www.chevening.org/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Apply Now →</a>
-        </div>
-        <div class="scholarship-card bg-white p-4 rounded-xl shadow">
+        <div class="bg-white p-4 rounded-xl shadow">
           <h3 class="font-bold text-lg text-[#0A2E5C]">Mastercard Foundation Scholars</h3>
-          <p class="text-gray-600 text-sm mt-1">For African students (including Liberia) to study globally.</p>
+          <p class="text-gray-600 text-sm mt-1">For African students (including Liberia).</p>
           <a href="https://mastercardfdn.org/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Apply Now →</a>
         </div>
       </div>
@@ -401,50 +217,18 @@
 
     <!-- Money Opportunities (Liberia) -->
     <div id="view-opportunities" class="view hidden">
-      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">💸 Legit Ways to Earn in Liberia</h1>
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">💸 Earn Money in Liberia</h1>
       <div class="space-y-4">
-        <div class="opportunity-card bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-lg text-[#0A2E5C]">Freelance Writing (Global)</h3>
-          <p class="text-gray-600 text-sm mt-1">Write for blogs, businesses. No experience needed. Start on Upwork or Fiverr.</p>
-          <a href="https://www.upwork.com/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Get Started →</a>
-        </div>
-        <div class="opportunity-card bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-lg text-[#0A2E5C]">Mobile Money Agent</h3>
-          <p class="text-gray-600 text-sm mt-1">Become an Lonestar Cell MTN or Orange Money agent in your community.</p>
+        <div class="bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">MTN Mobile Money Agent</h3>
+          <p class="text-gray-600 text-sm mt-1">Become an agent in your community.</p>
           <a href="https://www.lonestarcell.com/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Learn More →</a>
         </div>
-        <div class="opportunity-card bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-lg text-[#0A2E5C]">Online Tutoring</h3>
-          <p class="text-gray-600 text-sm mt-1">Teach English or math to students worldwide via Preply or Cambly.</p>
-          <a href="https://preply.com/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Sign Up →</a>
+        <div class="bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">Freelance Online</h3>
+          <p class="text-gray-600 text-sm mt-1">Write, design, or tutor globally. Get paid via MTN.</p>
+          <a href="https://www.upwork.com/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Start Now →</a>
         </div>
-        <div class="opportunity-card bg-white p-4 rounded-xl shadow">
-          <h3 class="font-bold text-lg text-[#0A2E5C]">Agricultural Export</h3>
-          <p class="text-gray-600 text-sm mt-1">Connect with buyers for Liberian cocoa, rubber, or palm oil via TradeNet.</p>
-          <a href="https://tradewin.gov.lr/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Explore →</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Marketplace -->
-    <div id="view-marketplace" class="view hidden">
-      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">🛍️ Akin Marketplace</h1>
-      <p class="mb-4">Promote your products or services to our student community.</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="product-card">
-          <h3 class="font-bold">Laptop for Students</h3>
-          <p class="text-gray-600 text-sm mt-1">Refurbished Dell laptops - $150</p>
-          <button class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm">Contact Seller</button>
-        </div>
-        <div class="product-card">
-          <h3 class="font-bold">Textbooks (New & Used)</h3>
-          <p class="text-gray-600 text-sm mt-1">Business, CS, and more. From $5.</p>
-          <button class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm">Browse</button>
-        </div>
-      </div>
-      <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h3 class="font-bold text-[#0A2E5C]">Want to list your product?</h3>
-        <p class="text-sm mt-1">Email: marketplace@akinuniversity.edu.lr</p>
       </div>
     </div>
 
@@ -459,23 +243,20 @@
         <div class="space-y-4">
           <div>
             <label class="block text-gray-700 mb-1">Full Name</label>
-            <input type="text" id="full-name" class="w-full p-2 border rounded" value="John Doe">
+            <input type="text" id="full-name" class="w-full p-2 border rounded">
           </div>
           <div>
             <label class="block text-gray-700 mb-1">Email</label>
-            <input type="email" id="email" class="w-full p-2 border rounded" value="john@example.com">
+            <input type="email" id="email" class="w-full p-2 border rounded">
           </div>
           <div>
-            <label class="block text-gray-700 mb-1">Phone (WhatsApp)</label>
-            <input type="text" id="phone" class="w-full p-2 border rounded" value="+231...">
+            <label class="block text-gray-700 mb-1">MTN Phone Number (for future)</label>
+            <input type="text" id="phone" class="w-full p-2 border rounded" placeholder="+231...">
           </div>
           <div>
-            <label class="block text-gray-700 mb-1">Bio</label>
-            <textarea id="bio" class="w-full p-2 border rounded" rows="3">Student at Akin University</textarea>
-          </div>
-          <div>
-            <label class="block text-gray-700 mb-1">Security PIN (4-digit)</label>
-            <input type="password" id="pin" class="w-full p-2 border rounded" placeholder="••••">
+            <label class="block text-gray-700 mb-1">SMS Verification Code</label>
+            <input type="text" id="sms-code" class="w-full p-2 border rounded" placeholder="Enter code (coming soon)">
+            <button class="mt-2 text-sm text-blue-600" disabled>SMS Code (Not Active Yet)</button>
           </div>
           <button id="save-profile" class="w-full bg-[#0A2E5C] text-white py-2 rounded font-medium">Save Profile</button>
         </div>
@@ -483,99 +264,110 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="text-center text-gray-600 text-sm p-4 mt-8 border-t">
-    &copy; <span id="year"></span> Akin International University College • Monrovia, Liberia
+    &copy; <span id="year"></span> Akin International University College • Monrovia, Liberia<br>
+    <span class="text-green-600 font-bold">100% FREE EDUCATION FOR ALL</span>
   </footer>
 
-  <script>
-    // DOM Elements
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const menuToggle = document.getElementById('menu-toggle');
-    const menuItems = document.querySelectorAll('.menu-item');
-    const views = document.querySelectorAll('.view');
+  <!-- Firebase + Firewall -->
+  <script type="module">
+    // =============== 🔒 FIREWALL + FREE ACCESS ===============
+    const firebaseConfig = {
+      apiKey: "AIzaSyAd6HlRq2CebiHIDQsE1rm0GG_5k8BJBaw",
+      authDomain: "akin-university-portal.firebaseapp.com",
+      projectId: "akin-university-portal",
+      storageBucket: "akin-university-portal.firebasestorage.app",
+      messagingSenderId: "465394069427",
+      appId: "1:465394069427:web:a517480d8a0da0125565c6",
+      measurementId: "G-R740KKNNLH"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+    const provider = new GoogleAuthProvider();
+
+    // UI
     const year = new Date().getFullYear();
     document.getElementById('year').textContent = year;
 
-    // Mobile Menu
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.add('open');
-      overlay.classList.add('open');
-    });
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('open');
-    });
-
     // Navigation
-    menuItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const view = item.getAttribute('data-view');
-        if (view) showView(view);
-        sidebar.classList.remove('open');
-        overlay.classList.remove('open');
+    function showView(view) {
+      ['dashboard','courses','scholarships','opportunities','profile'].forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.classList.toggle('hidden', v !== view);
       });
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.toggle('active', item.getAttribute('data-view') === view);
+      });
+    }
+
+    // Auth
+    document.getElementById('auth-menu-item').addEventListener('click', () => {
+      signInWithPopup(auth, provider).catch(console.error);
     });
 
-    function showView(viewName) {
-      // Update active menu
-      menuItems.forEach(item => {
-        if (item.getAttribute('data-view') === viewName) {
-          item.classList.add('active');
-        } else {
-          item.classList.remove('active');
-        }
-      });
-      
-      // Show view
-      views.forEach(view => {
-        if (view.id === `view-${viewName}`) {
-          view.classList.remove('hidden');
-        } else {
-          view.classList.add('hidden');
-        }
-      });
-    }
+    window.logout = () => signOut(auth);
 
-    // Mock User Data
-    let userData = {
-      name: "John Doe",
-      email: "john@example.com",
-      balance: 0.00,
-      enrolled: false,
-      courses: []
-    };
+    // Profile Upload
+    document.getElementById('pic-upload')?.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file || !auth.currentUser) return;
+      try {
+        const storageRef = ref(storage, `profile_pics/${auth.currentUser.uid}`);
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        localStorage.setItem('profilePic', url);
+        document.getElementById('profile-pic').src = url;
+        document.getElementById('sidebar-profile-pic').src = url;
+      } catch (err) {
+        alert('Failed to upload photo');
+      }
+    });
 
-    // Update UI with user data
-    function updateUI() {
-      document.getElementById('sidebar-name').textContent = userData.name;
-      document.getElementById('sidebar-email').textContent = userData.email;
-      document.getElementById('balance-amount').textContent = userData.balance.toFixed(2);
-      document.getElementById('enrollment-status').textContent = userData.enrolled ? 'Active' : 'Not Enrolled';
-      document.getElementById('course-count').textContent = userData.courses.length;
-      document.getElementById('profile-pic').src = 'https://via.placeholder.com/120';
-      document.getElementById('sidebar-profile-pic').src = 'https://via.placeholder.com/80';
-    }
-
-    // Enroll in course
+    // Enroll (Free)
     document.querySelectorAll('.enroll-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const course = btn.getAttribute('data-course');
-        alert(`You've enrolled in the course! Check your dashboard.`);
-        userData.enrolled = true;
-        userData.courses.push(course);
-        updateUI();
+        alert('✅ You are enrolled! Course materials are now available in your dashboard.');
       });
     });
 
     // Save Profile
-    document.getElementById('save-profile').addEventListener('click', () => {
+    document.getElementById('save-profile')?.addEventListener('click', () => {
       alert('Profile saved!');
     });
 
-    // Initialize
-    updateUI();
+    // Auth State
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('sidebar-name').textContent = user.displayName;
+        document.getElementById('sidebar-email').textContent = user.email;
+        const savedPic = localStorage.getItem('profilePic');
+        if (savedPic) {
+          document.getElementById('profile-pic').src = savedPic;
+          document.getElementById('sidebar-profile-pic').src = savedPic;
+        }
+        document.getElementById('auth-menu-item').style.display = 'none';
+      } else {
+        document.getElementById('auth-menu-item').style.display = 'flex';
+      }
+    });
+
+    // Mobile Menu
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('overlay').classList.add('open');
+    });
+    document.getElementById('overlay').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('open');
+    });
+
+    // Start
     showView('dashboard');
   </script>
 </body>
