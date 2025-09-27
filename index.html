@@ -1,342 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Akin International University College – Free global education, AI-powered learning, and career opportunities for students in Liberia and worldwide.">
-  <title>Akin International University College</title>
-  
-  <!-- Tailwind CSS + Icons -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  
-  <!-- PDFKit for Certificates -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/dist/pdfkit.standalone.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/blob-stream@0.1.4/browser.js"></script>
-  
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1627425739277170" crossorigin="anonymous"></script>
-  
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="#manifest-placeholder">
-  <meta name="theme-color" content="#0A2E5C">
-  
-  <style>
-    :root {
-      --primary: #0A2E5C;
-      --accent: #D4AF37;
-      --dark: #1e293b;
-    }
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .hidden { display: none !important; }
-    .portal-grid { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-      gap: 1.5rem; 
-    }
-    .social-btn { 
-      display: inline-flex; align-items: center; gap: 8px; 
-      padding: 8px 16px; border-radius: 6px; 
-      color: white; text-decoration: none; margin: 4px; 
-      font-size: 14px; transition: transform 0.2s; 
-    }
-    .social-btn:hover { transform: translateY(-2px); }
-    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
-    .dark-mode {
-      background-color: #0f172a !important;
-      color: #e2e8f0 !important;
-    }
-    .dark-mode .bg-white { background-color: #1e293b !important; }
-    .dark-mode .text-gray-700 { color: #cbd5e1 !important; }
-    .ai-chat {
-      height: 400px;
-      overflow-y: auto;
-      border: 1px solid #cbd5e1;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      background: #f8fafc;
-    }
-    .ai-message { margin-bottom: 1rem; padding: 0.5rem; border-radius: 0.375rem; }
-    .user-msg { background: #dbeafe; text-align: right; }
-    .ai-msg { background: #f1f5f9; }
-  </style>
-</head>
-<body class="bg-gray-50 min-h-screen">
-  <!-- === MAIN APP CONTAINER === -->
-  <div id="app" class="min-h-screen flex flex-col">
-
-    <!-- === HEADER (DYNAMIC) === -->
-    <header id="main-header" class="bg-[#0A2E5C] text-white shadow-md">
-      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-          <div class="bg-[#D4AF37] w-10 h-10 rounded-full flex items-center justify-center text-[#0A2E5C] font-bold text-lg">A</div>
-          <div>
-            <h1 class="text-xl font-bold">Akin International University College</h1>
-            <p class="text-sm text-blue-200 hidden md:block">Knowledge Without Borders</p>
-          </div>
-        </div>
-
-        <!-- Navigation (Public) -->
-        <nav id="public-nav" class="hidden md:flex space-x-4">
-          <a href="#" onclick="showView('home')" class="text-white hover:underline">Home</a>
-          <a href="#" onclick="showView('about')" class="text-white hover:underline">About</a>
-          <a href="#" onclick="showView('courses')" class="text-white hover:underline">Courses</a>
-          <a href="#" onclick="showView('contact')" class="text-white hover:underline">Contact</a>
-        </nav>
-
-        <!-- Auth Buttons -->
-        <div id="auth-buttons" class="flex items-center space-x-2">
-          <button id="toggle-dark" class="text-white text-xl"><i class="fas fa-moon"></i></button>
-          <button id="login-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">
-            Sign in
-          </button>
-        </div>
-
-        <!-- User Menu (Logged In) -->
-        <div id="user-menu" class="hidden items-center space-x-3">
-          <img id="profile-pic" src="https://via.placeholder.com/32" class="rounded-full w-8 h-8" />
-          <span id="user-display-name" class="font-medium hidden md:inline"></span>
-          <select id="role-selector" class="bg-blue-800 text-white rounded px-2 py-1 text-sm" onchange="switchRole(this.value)">
-            <option value="student">Student</option>
-            <option value="professor">Professor</option>
-            <option value="admin">Admin</option>
-          </select>
-          <button onclick="logout()" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">Sign Out</button>
-        </div>
-      </div>
-    </header>
-
-    <!-- === MAIN CONTENT (SPA VIEWS) === -->
-    <main id="main-content" class="flex-grow container mx-auto px-4 py-6">
-      <!-- HOME VIEW -->
-      <div id="view-home" class="min-h-screen">
-        <!-- Hero -->
-        <section class="mb-10 text-center py-8 bg-gradient-to-r from-blue-900 to-[#0A2E5C] text-white rounded-xl">
-          <h1 class="text-3xl md:text-4xl font-bold mb-4">Empowering Global Learners</h1>
-          <p class="text-lg max-w-2xl mx-auto">Free world-class education, AI-powered tools, and career pathways for students in Liberia and beyond.</p>
-          <button onclick="showView('courses')" class="mt-4 bg-[#D4AF37] text-[#0A2E5C] font-bold px-6 py-2 rounded-lg">Explore Courses</button>
-        </section>
-
-        <!-- AI Assistant -->
-        <section class="mb-10 bg-white p-6 rounded-xl shadow">
-          <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">🤖 Akin AI Assistant</h2>
-          <div class="ai-chat" id="ai-chat"></div>
-          <div class="mt-3 flex">
-            <input type="text" id="ai-input" placeholder="Ask about courses, scholarships, or careers..." class="flex-1 p-2 border rounded-l">
-            <button onclick="sendAIQuery()" class="bg-blue-600 text-white px-4 rounded-r">Send</button>
-          </div>
-        </section>
-
-        <!-- News -->
-        <section class="mb-10">
-          <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">📰 Global Education News</h2>
-          <div class="bg-white p-4 rounded shadow">
-            <ul class="list-disc pl-5 space-y-2 text-gray-700">
-              <li><a href="https://www.ulisboa.edu.lr/" target="_blank" class="text-blue-600 hover:underline">University of Liberia Updates</a></li>
-              <li><a href="https://www.bbc.com/news/world/africa" target="_blank" class="text-blue-600 hover:underline">BBC Africa Education</a></li>
-              <li><a href="https://www.un.org/en/sections/issues-depth/education/" target="_blank" class="text-blue-600 hover:underline">UN Education Initiatives</a></li>
-            </ul>
-          </div>
-        </section>
-
-        <!-- Scholarships -->
-        <section class="mb-10">
-          <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">💰 Global Scholarships</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="https://www.daad.de/en/" target="_blank" class="p-4 bg-green-50 rounded-lg hover:bg-green-100 card-hover">DAAD (Germany)</a>
-            <a href="https://www.chevening.org/" target="_blank" class="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 card-hover">Chevening (UK)</a>
-            <a href="https://www.fulbrightonline.org/" target="_blank" class="p-4 bg-red-50 rounded-lg hover:bg-red-100 card-hover">Fulbright (USA)</a>
-            <a href="https://www.au.int/en/scholarships" target="_blank" class="p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 card-hover">African Union</a>
-          </div>
-        </section>
-
-        <!-- Books -->
-        <section class="mb-10">
-          <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">📚 Free Learning Resources</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a href="https://openlibrary.org/" target="_blank" class="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 card-hover">Open Library</a>
-            <a href="https://www.gutenberg.org/" target="_blank" class="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 card-hover">Project Gutenberg</a>
-            <a href="https://books.google.com/" target="_blank" class="p-4 bg-teal-50 rounded-lg hover:bg-teal-100 card-hover">Google Books</a>
-          </div>
-        </section>
-
-        <!-- Partner Universities -->
-        <section class="mb-10">
-          <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">🌍 Partner Universities</h2>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="https://www.ulisboa.edu.lr/" target="_blank" class="text-center p-3 bg-white rounded shadow card-hover">University of Liberia</a>
-            <a href="https://smytheuniversity.edu" target="_blank" class="text-center p-3 bg-white rounded shadow card-hover">Smythe University</a>
-            <a href="https://www.harvard.edu/" target="_blank" class="text-center p-3 bg-white rounded shadow card-hover">Harvard</a>
-            <a href="https://www.mit.edu/" target="_blank" class="text-center p-3 bg-white rounded shadow card-hover">MIT</a>
-          </div>
-        </section>
-
-        <!-- Social -->
-        <section class="mb-10">
-          <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">📱 Connect With Us</h2>
-          <div>
-            <a href="https://facebook.com/akinuniversity" target="_blank" class="social-btn bg-blue-600"><i class="fab fa-facebook"></i> Facebook</a>
-            <a href="https://m.me/akinuniversity" target="_blank" class="social-btn bg-blue-800"><i class="fab fa-facebook-messenger"></i> Messenger</a>
-            <a href="https://wa.me/1234567890" target="_blank" class="social-btn bg-green-500"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-            <a href="https://twitter.com/akinuniversity" target="_blank" class="social-btn bg-black"><i class="fab fa-twitter"></i> Twitter</a>
-          </div>
-        </section>
-
-        <!-- AdSense -->
-        <section class="mb-10">
-          <h2 class="text-2xl font-bold text-[#0A2E5C] mb-4">📢 Sponsored Opportunities</h2>
-          <ins class="adsbygoogle"
-               style="display:block"
-               data-ad-client="ca-pub-1627425739277170"
-               data-ad-slot="1234567890"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-        </section>
-      </div>
-
-      <!-- ABOUT VIEW -->
-      <div id="view-about" class="hidden">
-        <h1 class="text-2xl font-bold mb-6">About Akin International University College</h1>
-        <p class="mb-4">Akin International University College is a new, globally connected institution dedicated to providing accessible, high-quality education to students in Liberia and beyond.</p>
-        <p class="mb-4">Our mission is to empower students with knowledge, skills, and global opportunities through free online courses, partnerships with top universities, and career support.</p>
-        <h2 class="text-xl font-bold mt-6 mb-3">Our Vision</h2>
-        <p>To become a leading African university recognized for innovation, accessibility, and global impact.</p>
-      </div>
-
-      <!-- COURSES VIEW -->
-      <div id="view-courses" class="hidden">
-        <h1 class="text-2xl font-bold mb-6">Available Courses</h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-bold text-[#0A2E5C]">Computer Science</h2>
-            <ul class="list-disc pl-5 text-gray-700">
-              <li>Introduction to Programming</li>
-              <li>Data Structures & Algorithms</li>
-              <li>Web Development (HTML, CSS, JS, React)</li>
-              <li>AI & Machine Learning Fundamentals</li>
-            </ul>
-          </div>
-          <div class="bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-bold text-[#0A2E5C]">Business Administration</h2>
-            <ul class="list-disc pl-5 text-gray-700">
-              <li>Principles of Management</li>
-              <li>Marketing Fundamentals</li>
-              <li>Financial Accounting</li>
-              <li>Entrepreneurship & Innovation</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- CONTACT VIEW -->
-      <div id="view-contact" class="hidden">
-        <h1 class="text-2xl font-bold mb-6">Contact Us</h1>
-        <form id="contact-form" class="max-w-md mx-auto bg-white p-6 rounded shadow">
-          <div class="mb-4">
-            <label class="block text-gray-700">Name</label>
-            <input type="text" class="w-full p-2 border rounded" required>
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700">Email</label>
-            <input type="email" class="w-full p-2 border rounded" required>
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700">Message</label>
-            <textarea class="w-full p-2 border rounded" rows="4" required></textarea>
-          </div>
-          <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">Send Message</button>
-        </form>
-      </div>
-
-      <!-- STUDENT PORTAL -->
-      <div id="view-student" class="hidden">
-        <h1 class="text-2xl font-bold mb-6">👨‍🎓 Student Dashboard</h1>
-        <div class="portal-grid">
-          <!-- Profile -->
-          <div class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-xl font-bold text-blue-700 mb-3">👤 My Profile</h2>
-            <img id="student-pic" src="https://via.placeholder.com/100" class="w-24 h-24 rounded-full mx-auto mb-3">
-            <input type="file" id="pic-upload" accept="image/*" class="mb-2 w-full text-sm">
-            <button onclick="changePassword()" class="w-full mt-2 bg-gray-600 text-white py-1 rounded text-sm">Change Password</button>
-            <button onclick="changePIN()" class="w-full mt-2 bg-gray-600 text-white py-1 rounded text-sm">Change PIN</button>
-          </div>
-
-          <!-- Courses -->
-          <div class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-xl font-bold text-blue-700 mb-3">📚 My Courses</h2>
-            <ul class="list-disc pl-5 text-gray-700 space-y-1">
-              <li>Web Development (In Progress)</li>
-              <li>Business Fundamentals (Completed)</li>
-            </ul>
-            <a href="#" class="mt-2 block text-blue-600 hover:underline">Enroll in New Course</a>
-          </div>
-
-          <!-- Assignments -->
-          <div class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-xl font-bold text-blue-700 mb-3">📝 Assignments</h2>
-            <p class="text-gray-700">Due: <strong>Tomorrow</strong></p>
-            <button class="mt-2 bg-blue-600 text-white py-1 px-3 rounded text-sm">Submit</button>
-          </div>
-
-          <!-- Certificate -->
-          <div class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-xl font-bold text-blue-700 mb-3">🎓 Generate Certificate</h2>
-            <button onclick="generateCertificate()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
-              Download PDF Certificate
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- PROFESSOR PORTAL -->
-      <div id="view-professor" class="hidden">
-        <h1 class="text-2xl font-bold mb-6">👩‍🏫 Professor Dashboard</h1>
-        <div class="portal-grid">
-          <div class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-xl font-bold text-green-700">📚 My Courses</h2>
-            <ul class="list-disc pl-5 text-gray-700">
-              <li>Web Development</li>
-              <li>AI Fundamentals</li>
-            </ul>
-          </div>
-          <div class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-xl font-bold text-green-700">📝 Grade Assignments</h2>
-            <p>3 submissions pending</p>
-            <button class="mt-2 bg-green-600 text-white py-1 px-3 rounded text-sm">Review</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ADMIN PORTAL -->
-      <div id="view-admin" class="hidden">
-        <h1 class="text-2xl font-bold mb-6">👨‍💼 Admin Dashboard</h1>
-        <div class="portal-grid">
-          <div class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-xl font-bold text-purple-700">👥 User Management</h2>
-            <p>120 students, 8 professors</p>
-          </div>
-          <div class="bg-white p-6 rounded-xl shadow">
-            <h2 class="text-xl font-bold text-purple-700">📢 Announcements</h2>
-            <button class="mt-2 bg-purple-600 text-white py-1 px-3 rounded text-sm">Create New</button>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="bg-gray-800 text-white py-4 text-center text-sm">
-      <p>&copy; <span id="current-year"></span> Akin International University College</p>
-    </footer>
-  </div>
-
-  <!-- === FIREBASE + LOGIC === -->
   <script type="module">
-    // Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyAd6HlRq2CebiHIDQsE1rm0GG_5k8BJBaw",
+  // =============== 🔥 RESTORED FIREWALL (Firebase Auth + Role Control) ===============
+  const firebaseConfig = {
+    apiKey: "AIzaSyAd6HlRq2CebiHIDQsE1rm0GG_5k8BJBaw",
       authDomain: "akin-university-portal.firebaseapp.com",
       projectId: "akin-university-portal",
       storageBucket: "akin-university-portal.firebasestorage.app",
@@ -345,163 +13,570 @@
       measurementId: "G-R740KKNNLH"
     };
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const storage = getStorage(app);
-    const provider = new GoogleAuthProvider();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const storage = getStorage(app);
+  const provider = new GoogleAuthProvider();
 
-    // DOM
-    const currentYear = new Date().getFullYear();
-    document.getElementById('current-year').textContent = currentYear;
+  // Update UI with user data
+  function updateUI(user) {
+    if (user) {
+      const email = user.email.toLowerCase();
+      document.getElementById('sidebar-name').textContent = user.displayName;
+      document.getElementById('sidebar-email').textContent = user.email;
+      document.getElementById('user-display-name').textContent = user.displayName;
 
-    // Dark Mode
-    const toggleDark = document.getElementById('toggle-dark');
-    let isDark = false;
-    toggleDark.addEventListener('click', () => {
-      isDark = !isDark;
-      document.body.classList.toggle('dark-mode', isDark);
-      toggleDark.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+      // Load profile pic
+      const savedPic = localStorage.getItem('profilePic');
+      if (savedPic) {
+        document.getElementById('profile-pic').src = savedPic;
+        document.getElementById('sidebar-profile-pic').src = savedPic;
+        document.getElementById('student-pic').src = savedPic;
+      }
+
+      // Role-based routing
+      if (email.includes('admin')) {
+        showView('admin');
+        document.getElementById('role-selector').value = 'admin';
+      } else if (email.includes('prof')) {
+        showView('professor');
+        document.getElementById('role-selector').value = 'professor';
+      } else {
+        showView('student');
+        document.getElementById('role-selector').value = 'student';
+      }
+
+      // Show user menu, hide login
+      document.getElementById('auth-menu-item').style.display = 'none';
+      document.getElementById('user-menu').classList.remove('hidden');
+    } else {
+      // Guest mode
+      showView('dashboard');
+      document.getElementById('auth-menu-item').style.display = 'flex';
+      document.getElementById('user-menu').classList.add('hidden');
+    }
+  }
+
+  // Navigation
+  window.showView = (view) => {
+    ['dashboard', 'courses', 'scholarships', 'opportunities', 'marketplace', 'profile', 'student', 'professor', 'admin'].forEach(v => {
+      const el = document.getElementById(`view-${v}`);
+      if (el) el.classList.toggle('hidden', v !== view);
+    });
+  };
+
+  // Auth Listeners
+  document.getElementById('auth-menu-item')?.addEventListener('click', () => {
+    signInWithPopup(auth, provider).catch(console.error);
+  });
+
+  window.logout = () => {
+    signOut(auth);
+  };
+
+  // Profile Upload
+  document.getElementById('pic-upload')?.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file || !auth.currentUser) return;
+    try {
+      const storageRef = ref(storage, `profile_pics/${auth.currentUser.uid}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      localStorage.setItem('profilePic', url);
+      updateUI(auth.currentUser);
+    } catch (err) {
+      alert('Failed to upload photo');
+    }
+  });
+
+  // Password & PIN
+  window.changePassword = () => {
+    const user = auth.currentUser;
+    if (user?.email) {
+      sendPasswordResetEmail(auth, user.email).then(() => alert("Password reset email sent!"));
+    }
+  };
+  window.changePIN = () => {
+    const pin = prompt("Enter new 4-digit PIN:");
+    if (pin && /^\d{4}$/.test(pin)) {
+      localStorage.setItem('userPIN', pin);
+      alert("PIN updated!");
+    }
+  };
+
+  // Certificate (same as before)
+  window.generateCertificate = () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const doc = new PDFDocument({ margin: 50 });
+    const stream = doc.pipe(blobStream());
+    doc.fontSize(30).fillColor('#0A2E5C').text('Certificate of Completion', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(24).fillColor('#D4AF37').text(user.displayName, { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Issued on: ${new Date().toLocaleDateString()}`, { align: 'center' });
+    doc.end();
+    stream.on('finish', () => {
+      const url = stream.toBlobURL('application/pdf');
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `AkinU_Certificate_${user.uid}.pdf`;
+      link.click();
+    });
+  };
+
+  // Real-time auth state
+  onAuthStateChanged(auth, (user) => {
+    updateUI(user);
+  });
+
+  // Initialize
+  document.getElementById('year').textContent = new Date().getFullYear();
+  updateUI(null); // Start as guest
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Akin International University College – Free courses, scholarships, and income opportunities for Liberians. Enroll today!">
+  <title>Akin International University College</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+  
+  <style>
+    :root {
+      --primary: #0A2E5C;
+      --accent: #D4AF37;
+      --dark: #1e293b;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: #f8fafc;
+      transition: background-color 0.3s;
+    }
+    .dark-mode {
+      background-color: #0f172a !important;
+      color: #e2e8f0 !important;
+    }
+    .dark-mode .bg-white { background-color: #1e293b !important; }
+    .dark-mode .text-gray-700 { color: #cbd5e1 !important; }
+    .sidebar {
+      width: 260px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: -260px;
+      background: var(--primary);
+      color: white;
+      transition: left 0.3s;
+      z-index: 50;
+      overflow-y: auto;
+    }
+    .sidebar.open { left: 0; }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 40;
+    }
+    .overlay.open { display: block; }
+    .main-content {
+      margin-left: 0;
+      transition: margin-left 0.3s;
+    }
+    .main-content.sidebar-open { margin-left: 260px; }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      border-left: 4px solid transparent;
+    }
+    .menu-item:hover, .menu-item.active {
+      background: rgba(255,255,255,0.1);
+      border-left: 4px solid var(--accent);
+    }
+    .menu-item i { margin-right: 12px; font-size: 18px; }
+    .balance-card {
+      background: linear-gradient(135deg, #0A2E5C, #1e3a8a);
+      color: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .course-card, .scholarship-card, .opportunity-card {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .course-card:hover { transform: translateY(-4px); }
+    .product-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .profile-section {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .profile-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Menu Toggle -->
+  <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-50 bg-[#0A2E5C] text-white p-2 rounded">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Overlay -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <div class="profile-section">
+      <img id="sidebar-profile-pic" src="https://via.placeholder.com/80" class="profile-pic">
+      <h3 id="sidebar-name" class="font-bold">Guest</h3>
+      <p id="sidebar-email" class="text-blue-200 text-sm">Not signed in</p>
+    </div>
+    
+    <div class="menu-item active" data-view="dashboard">
+      <i class="ri-home-4-line"></i> Dashboard
+    </div>
+    <div class="menu-item" data-view="courses">
+      <i class="ri-book-open-line"></i> Courses
+    </div>
+    <div class="menu-item" data-view="scholarships">
+      <i class="ri-award-line"></i> Scholarships
+    </div>
+    <div class="menu-item" data-view="opportunities">
+      <i class="ri-money-dollar-circle-line"></i> Money Opportunities
+    </div>
+    <div class="menu-item" data-view="marketplace">
+      <i class="ri-shopping-bag-line"></i> Marketplace
+    </div>
+    <div class="menu-item" data-view="profile">
+      <i class="ri-user-3-line"></i> My Profile
+    </div>
+    <div class="menu-item" id="auth-menu-item">
+      <i class="ri-login-box-line"></i> Sign In
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="main-content" class="main-content p-4 md:ml-0 pt-20 md:pt-4">
+    <!-- Dashboard -->
+    <div id="view-dashboard" class="view">
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">🎓 Welcome to Akin University</h1>
+      
+      <!-- Balance Card -->
+      <div class="balance-card">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-blue-200">Account Balance</p>
+            <p class="text-2xl font-bold">$<span id="balance-amount">0.00</span></p>
+          </div>
+          <button class="bg-[#D4AF37] text-[#0A2E5C] px-4 py-2 rounded-lg font-bold">Add Funds</button>
+        </div>
+        <div class="mt-4 text-sm">
+          <p>Status: <span id="enrollment-status" class="font-medium">Not Enrolled</span></p>
+          <p>Next Payment Due: <span id="due-date">-</span></p>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-[#0A2E5C]">My Courses</h3>
+          <p id="course-count" class="text-2xl mt-2">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-[#0A2E5C]">Scholarships Applied</h3>
+          <p class="text-2xl mt-2">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-[#0A2E5C]">Earnings This Month</h3>
+          <p class="text-2xl mt-2">$0</p>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="bg-white p-4 rounded-xl shadow">
+        <h2 class="text-xl font-bold text-[#0A2E5C] mb-4">Recent Activity</h2>
+        <ul class="space-y-2 text-gray-600">
+          <li>• Welcome to Akin University! Start by enrolling in a course.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Courses -->
+    <div id="view-courses" class="view hidden">
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">📚 Available Courses</h1>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Course 1 -->
+        <div class="course-card bg-white">
+          <div class="p-4">
+            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Free</span>
+            <h3 class="font-bold text-lg mt-2">Web Development Fundamentals</h3>
+            <p class="text-gray-600 text-sm mt-2">Learn HTML, CSS, JavaScript, and build your first website.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-sm text-gray-500">8 weeks</span>
+              <button class="enroll-btn bg-[#0A2E5C] text-white px-3 py-1 rounded text-sm" data-course="web-dev">Enroll Now</button>
+            </div>
+          </div>
+        </div>
+        <!-- Course 2 -->
+        <div class="course-card bg-white">
+          <div class="p-4">
+            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Certified</span>
+            <h3 class="font-bold text-lg mt-2">Business Administration</h3>
+            <p class="text-gray-600 text-sm mt-2">Principles of management, marketing, and finance.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-sm text-gray-500">12 weeks</span>
+              <button class="enroll-btn bg-[#0A2E5C] text-white px-3 py-1 rounded text-sm" data-course="business">Enroll Now</button>
+            </div>
+          </div>
+        </div>
+        <!-- Course 3 -->
+        <div class="course-card bg-white">
+          <div class="p-4">
+            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">Advanced</span>
+            <h3 class="font-bold text-lg mt-2">AI & Machine Learning</h3>
+            <p class="text-gray-600 text-sm mt-2">Intro to Python, data science, and AI models.</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-sm text-gray-500">10 weeks</span>
+              <button class="enroll-btn bg-[#0A2E5C] text-white px-3 py-1 rounded text-sm" data-course="ai">Enroll Now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scholarships -->
+    <div id="view-scholarships" class="view hidden">
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">💰 Verified Scholarships</h1>
+      <div class="space-y-4">
+        <!-- Liberia-Focused -->
+        <div class="scholarship-card bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">Liberia Education Trust Fund</h3>
+          <p class="text-gray-600 text-sm mt-1">For Liberian students pursuing higher education.</p>
+          <a href="https://www.moe.gov.lr/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Apply Now →</a>
+        </div>
+        <!-- Global -->
+        <div class="scholarship-card bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">DAAD Scholarships (Germany)</h3>
+          <p class="text-gray-600 text-sm mt-1">Fully funded master's and PhD programs.</p>
+          <a href="https://www.daad.de/en/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Apply Now →</a>
+        </div>
+        <div class="scholarship-card bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">Chevening Scholarships (UK)</h3>
+          <p class="text-gray-600 text-sm mt-1">One-year master's in the UK for future leaders.</p>
+          <a href="https://www.chevening.org/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Apply Now →</a>
+        </div>
+        <div class="scholarship-card bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">Mastercard Foundation Scholars</h3>
+          <p class="text-gray-600 text-sm mt-1">For African students (including Liberia) to study globally.</p>
+          <a href="https://mastercardfdn.org/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Apply Now →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Money Opportunities (Liberia) -->
+    <div id="view-opportunities" class="view hidden">
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">💸 Legit Ways to Earn in Liberia</h1>
+      <div class="space-y-4">
+        <div class="opportunity-card bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">Freelance Writing (Global)</h3>
+          <p class="text-gray-600 text-sm mt-1">Write for blogs, businesses. No experience needed. Start on Upwork or Fiverr.</p>
+          <a href="https://www.upwork.com/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Get Started →</a>
+        </div>
+        <div class="opportunity-card bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">Mobile Money Agent</h3>
+          <p class="text-gray-600 text-sm mt-1">Become an Lonestar Cell MTN or Orange Money agent in your community.</p>
+          <a href="https://www.lonestarcell.com/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Learn More →</a>
+        </div>
+        <div class="opportunity-card bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">Online Tutoring</h3>
+          <p class="text-gray-600 text-sm mt-1">Teach English or math to students worldwide via Preply or Cambly.</p>
+          <a href="https://preply.com/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Sign Up →</a>
+        </div>
+        <div class="opportunity-card bg-white p-4 rounded-xl shadow">
+          <h3 class="font-bold text-lg text-[#0A2E5C]">Agricultural Export</h3>
+          <p class="text-gray-600 text-sm mt-1">Connect with buyers for Liberian cocoa, rubber, or palm oil via TradeNet.</p>
+          <a href="https://tradewin.gov.lr/" target="_blank" class="text-blue-600 text-sm mt-2 inline-block">Explore →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marketplace -->
+    <div id="view-marketplace" class="view hidden">
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">🛍️ Akin Marketplace</h1>
+      <p class="mb-4">Promote your products or services to our student community.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="product-card">
+          <h3 class="font-bold">Laptop for Students</h3>
+          <p class="text-gray-600 text-sm mt-1">Refurbished Dell laptops - $150</p>
+          <button class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm">Contact Seller</button>
+        </div>
+        <div class="product-card">
+          <h3 class="font-bold">Textbooks (New & Used)</h3>
+          <p class="text-gray-600 text-sm mt-1">Business, CS, and more. From $5.</p>
+          <button class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm">Browse</button>
+        </div>
+      </div>
+      <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <h3 class="font-bold text-[#0A2E5C]">Want to list your product?</h3>
+        <p class="text-sm mt-1">Email: marketplace@akinuniversity.edu.lr</p>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div id="view-profile" class="view hidden">
+      <h1 class="text-2xl font-bold text-[#0A2E5C] mb-6">👤 My Profile</h1>
+      <div class="bg-white p-6 rounded-xl shadow max-w-2xl mx-auto">
+        <div class="text-center mb-6">
+          <img id="profile-pic" src="https://via.placeholder.com/120" class="w-32 h-32 rounded-full mx-auto border-4 border-[#D4AF37]">
+          <input type="file" id="pic-upload" accept="image/*" class="mt-3 text-sm">
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-gray-700 mb-1">Full Name</label>
+            <input type="text" id="full-name" class="w-full p-2 border rounded" value="John Doe">
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Email</label>
+            <input type="email" id="email" class="w-full p-2 border rounded" value="john@example.com">
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Phone (WhatsApp)</label>
+            <input type="text" id="phone" class="w-full p-2 border rounded" value="+231...">
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Bio</label>
+            <textarea id="bio" class="w-full p-2 border rounded" rows="3">Student at Akin University</textarea>
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Security PIN (4-digit)</label>
+            <input type="password" id="pin" class="w-full p-2 border rounded" placeholder="••••">
+          </div>
+          <button id="save-profile" class="w-full bg-[#0A2E5C] text-white py-2 rounded font-medium">Save Profile</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-gray-600 text-sm p-4 mt-8 border-t">
+    &copy; <span id="year"></span> Akin International University College • Monrovia, Liberia
+  </footer>
+
+  <script>
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const views = document.querySelectorAll('.view');
+    const year = new Date().getFullYear();
+    document.getElementById('year').textContent = year;
+
+    // Mobile Menu
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
     });
 
     // Navigation
-    window.showView = (view) => {
-      ['home', 'about', 'courses', 'contact', 'student', 'professor', 'admin'].forEach(v => {
-        document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
+    menuItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const view = item.getAttribute('data-view');
+        if (view) showView(view);
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
       });
-      document.getElementById('public-nav').classList.toggle('hidden', ['student','professor','admin'].includes(view));
-      document.getElementById('auth-buttons').classList.toggle('hidden', ['student','professor','admin'].includes(view));
-      document.getElementById('user-menu').classList.toggle('hidden', !['student','professor','admin'].includes(view));
-    };
-
-    // Auth
-    document.getElementById('login-btn')?.addEventListener('click', () => signInWithPopup(auth, provider));
-
-    window.logout = () => {
-      signOut(auth);
-      showView('home');
-    };
-
-    window.changePassword = () => {
-      const user = auth.currentUser;
-      if (user && user.email) {
-        sendPasswordResetEmail(auth, user.email);
-        alert("Password reset email sent!");
-      }
-    };
-
-    window.changePIN = () => {
-      const pin = prompt("Enter new 4-digit PIN:");
-      if (pin && /^\d{4}$/.test(pin)) {
-        localStorage.setItem('userPIN', pin);
-        alert("PIN updated!");
-      }
-    };
-
-    // Certificate
-    window.generateCertificate = () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      const doc = new PDFDocument({ margin: 50 });
-      const stream = doc.pipe(blobStream());
-      doc.fontSize(30).fillColor('#0A2E5C').text('Certificate of Completion', { align: 'center' });
-      doc.moveDown();
-      doc.fontSize(18).text(`This certifies that`, { align: 'center' });
-      doc.moveDown();
-      doc.fontSize(24).fillColor('#D4AF37').text(user.displayName, { align: 'center' });
-      doc.moveDown();
-      doc.fontSize(16).text('has successfully completed', { align: 'center' });
-      doc.moveDown();
-      doc.fontSize(20).text('Online Learning Program', { align: 'center' });
-      doc.moveDown(2);
-      doc.fontSize(12).text(`Issued on: ${new Date().toLocaleDateString()}`, { align: 'center' });
-      doc.end();
-      stream.on('finish', () => {
-        const url = stream.toBlobURL('application/pdf');
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `AkinU_Certificate_${user.uid}.pdf`;
-        link.click();
-      });
-    };
-
-    // Profile Pic
-    document.getElementById('pic-upload')?.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const user = auth.currentUser;
-      const storageRef = ref(storage, `profile_pics/${user.uid}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      document.getElementById('student-pic').src = url;
-      document.getElementById('profile-pic').src = url;
-      localStorage.setItem('profilePic', url);
     });
 
-    // Role Switching
-    window.switchRole = (role) => {
-      if (role === 'student') showView('student');
-      else if (role === 'professor') showView('professor');
-      else if (role === 'admin') showView('admin');
-    };
-
-    // AI Chat (groq)
-    window.sendAIQuery = () => {
-      const input = document.getElementById('ai-input');
-      const chat = document.getElementById('ai-chat');
-      const query = input.value.trim();
-      if (!query) return;
-      
-      // User message
-      const userMsg = document.createElement('div');
-      userMsg.className = 'ai-message user-msg';
-      userMsg.textContent = query;
-      chat.appendChild(userMsg);
-      
-      // AI response (groq)
-      setTimeout(() => {
-        const aiMsg = document.createElement('div');
-        aiMsg.className = 'ai-message ai-msg';
-        aiMsg.textContent = "I'm Akin AI! I can help you find courses, scholarships, or career advice. Try asking: 'What courses are available?' or 'How do I apply for scholarships?'";
-        chat.appendChild(aiMsg);
-        chat.scrollTop = chat.scrollHeight;
-      }, 500);
-      
-      input.value = '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';
-      chat.scrollTop = chat.scrollHeight;
-    };
-
-    // Auth State
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById('user-display-name').textContent = user.displayName;
-        const savedPic = localStorage.getItem('profilePic');
-        if (savedPic) {
-          document.getElementById('profile-pic').src = savedPic;
-          document.getElementById('student-pic').src = savedPic;
-        }
-        
-        const email = user.email.toLowerCase();
-        if (email.includes('admin')) {
-          showView('admin');
-          document.getElementById('role-selector').value = 'admin';
-        } else if (email.includes('prof')) {
-          showView('professor');
-          document.getElementById('role-selector').value = 'professor';
+    function showView(viewName) {
+      // Update active menu
+      menuItems.forEach(item => {
+        if (item.getAttribute('data-view') === viewName) {
+          item.classList.add('active');
         } else {
-          showView('student');
-          document.getElementById('role-selector').value = 'student';
+          item.classList.remove('active');
         }
-      } else {
-        showView('home');
-      }
+      });
+      
+      // Show view
+      views.forEach(view => {
+        if (view.id === `view-${viewName}`) {
+          view.classList.remove('hidden');
+        } else {
+          view.classList.add('hidden');
+        }
+      });
+    }
+
+    // Mock User Data
+    let userData = {
+      name: "John Doe",
+      email: "john@example.com",
+      balance: 0.00,
+      enrolled: false,
+      courses: []
+    };
+
+    // Update UI with user data
+    function updateUI() {
+      document.getElementById('sidebar-name').textContent = userData.name;
+      document.getElementById('sidebar-email').textContent = userData.email;
+      document.getElementById('balance-amount').textContent = userData.balance.toFixed(2);
+      document.getElementById('enrollment-status').textContent = userData.enrolled ? 'Active' : 'Not Enrolled';
+      document.getElementById('course-count').textContent = userData.courses.length;
+      document.getElementById('profile-pic').src = 'https://via.placeholder.com/120';
+      document.getElementById('sidebar-profile-pic').src = 'https://via.placeholder.com/80';
+    }
+
+    // Enroll in course
+    document.querySelectorAll('.enroll-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const course = btn.getAttribute('data-course');
+        alert(`You've enrolled in the course! Check your dashboard.`);
+        userData.enrolled = true;
+        userData.courses.push(course);
+        updateUI();
+      });
     });
 
-    // AdSense
-    (adsbygoogle = window.adsbygoogle || []).push({});
+    // Save Profile
+    document.getElementById('save-profile').addEventListener('click', () => {
+      alert('Profile saved!');
+    });
+
+    // Initialize
+    updateUI();
+    showView('dashboard');
   </script>
 </body>
 </html>
