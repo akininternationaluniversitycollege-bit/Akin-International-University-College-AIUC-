@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Akin International University College</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // 🔑 REPLACE WITH YOUR FIREBASE CONFIG (get from Firebase Console)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEXAMPLE1234567890abcdef", // ← EDIT THIS
+      authDomain: "your-project.firebaseapp.com",
+      projectId: "your-project",
+      storageBucket: "your-project.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdef1234567890"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // DOM Elements
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const driveBtn = document.getElementById('drive-btn');
+    const userGreeting = document.getElementById('user-greeting');
+    const publicSection = document.getElementById('public-section');
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userGreeting.textContent = `Hello, ${user.displayName}`;
+        loginBtn.classList.add('hidden');
+        logoutBtn.classList.remove('hidden');
+        driveBtn.classList.remove('hidden');
+        publicSection.classList.add('hidden');
+      } else {
+        loginBtn.classList.remove('hidden');
+        logoutBtn.classList.add('hidden');
+        driveBtn.classList.add('hidden');
+        publicSection.classList.remove('hidden');
+      }
+    });
+
+    // Login
+    loginBtn?.addEventListener('click', async () => {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        alert("Login failed: " + error.message);
+      }
+    });
+
+    // Logout
+    logoutBtn?.addEventListener('click', () => signOut(auth));
+
+    // Open Google Drive
+    driveBtn?.addEventListener('click', () => {
+      window.open('https://drive.google.com/drive/my-drive', '_blank');
+    });
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-[#0A2E5C] text-white shadow-md">
+    <div class="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3">
+        <!-- Placeholder Logo (replace with your real logo URL later) -->
+        <div class="bg-[#D4AF37] w-12 h-12 rounded-full flex items-center justify-center text-[#0A2E5C] font-bold text-xl">A</div>
+        <div>
+          <h1 class="text-xl font-bold">Akin International University College</h1>
+          <p class="text-sm text-blue-200">Knowledge Without Borders</p>
+        </div>
+      </div>
+
+      <!-- Auth Buttons -->
+      <div class="flex items-center space-x-3">
+        <button id="login-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium hidden">
+          Sign in with Google
+        </button>
+        <span id="user-greeting" class="text-white font-medium hidden"></span>
+        <button id="drive-btn" class="bg-[#D4AF37] hover:bg-yellow-700 text-[#0A2E5C] px-4 py-2 rounded-lg font-medium hidden">
+          Google Drive
+        </button>
+        <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded hidden">
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero + Public Content -->
+  <main class="flex-grow container mx-auto px-4 py-12">
+    <div class="text-center max-w-3xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-bold text-[#0A2E5C] mb-6">
+        Welcome to Akin International University College
+      </h2>
+      <p class="text-lg text-gray-700 mb-8">
+        A new era of global education, innovation, and academic excellence.  
+        Explore our programs, connect with faculty, and manage your journey — all in one place.
+      </p>
+
+      <!-- Public Section (visible only when not logged in) -->
+      <div id="public-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+        <h3 class="text-xl font-semibold text-[#0A2E5C] mb-3">Prospective Students</h3>
+        <p class="mb-4">Browse courses, admission requirements, and virtual campus tours.</p>
+        <a href="#" class="inline-block bg-[#0A2E5C] hover:bg-blue-800 text-white px-6 py-2 rounded-lg">
+          Explore Programs
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-5 text-center text-sm">
+    <p>&copy; <span id="year"></span> Akin International University College. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
